@@ -1737,6 +1737,19 @@ def map(f: Callable[[Extrapolation], Extrapolation], extrapolation):
     else:
         return f(extrapolation)
 
+def give_leaves(extrapolation: Extrapolation):
+    if isinstance(extrapolation, _MixedExtrapolation):
+        ret = list(sum([give_leaves(ext) for k, ext in extrapolation.ext.items()], []))
+    elif isinstance(extrapolation, _NormalTangentialExtrapolation):
+        ret = list(give_leaves(extrapolation.normal) + give_leaves(extrapolation.tangential))
+    elif isinstance(extrapolation, _ConditionalExtrapolation):
+        ret = list(give_leaves(extrapolation.true_ext) + give_leaves(extrapolation.false_ext))
+    else:
+        ret = [extrapolation]
+    return list(set(ret))
+
+
+
 
 def remove_constant_offset(extrapolation):
     """
@@ -1755,3 +1768,4 @@ def remove_constant_offset(extrapolation):
         else:
             return extrapolation
     return map(const_to_zero, extrapolation)
+
