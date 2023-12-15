@@ -385,7 +385,11 @@ class Tensor:
         return int(self.native())
 
     def __repr__(self):
-        return format_tensor(self, PrintOptions())
+        try:
+            f = format_tensor(self, PrintOptions())
+        except IndexError:
+            f = ""
+        return f
 
     def _repr_pretty_(self, printer, cycle):
         printer.text(format_tensor(self, PrintOptions(colors=DEFAULT_COLORS)))

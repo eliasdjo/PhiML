@@ -318,7 +318,7 @@ class LinearFunction(Generic[X, Y], Callable[[X], Y]):
             if not key.tracing:
                 self.matrices_and_biases[key] = matrix, bias, raw_out
                 if len(self.matrices_and_biases) >= 4:
-                    warnings.warn(f"""Φ-ML-lin: The compiled linear function '{f_name(self.f)}' was traced {len(self.matrices_and_biases)} times.
+                    warnings.warn(f"""Φ-ML-lin: The compiled linear function '{f_name(self.f)}' was traced  times.
 Performing many traces may be slow and cause memory leaks.
 Tensors in auxiliary arguments (all except the first parameter unless specified otherwise) are compared by reference, not by tensor values.
 Auxiliary arguments: {key.auxiliary_kwargs}
