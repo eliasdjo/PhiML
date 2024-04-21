@@ -1400,7 +1400,8 @@ class Backend:
                      rtol: Union[ndarray, TensorType],
                      atol: Union[ndarray, TensorType],
                      max_iter: ndarray,
-                     pre: Optional[Preconditioner]) -> SolveResult:
+                     pre: Optional[Preconditioner],
+                     regulizer=0) -> SolveResult:
         """
         Solve the system of linear equations A · x = y.
         This method need not provide a gradient for the operation.
@@ -1444,7 +1445,7 @@ class Backend:
             return self.bi_conjugate_gradient(lin, y, x0, rtol, atol, max_iter, pre, poly_order=1)
         elif method.startswith('biCG-stab('):
             order = int(method[len('biCG-stab('):-1])
-            return self.bi_conjugate_gradient(lin, y, x0, rtol, atol, max_iter, pre, poly_order=order)
+            return self.bi_conjugate_gradient(lin, y, x0, rtol, atol, max_iter, pre, poly_order=order, regulizer=regulizer)
         else:
             raise NotImplementedError(f"Method '{method}' not supported for linear solve.")
 
@@ -1458,12 +1459,12 @@ class Backend:
         from ._linalg import cg_adaptive
         return cg_adaptive(self, lin, y, x0, rtol, atol, max_iter, pre)
 
-    def bi_conjugate_gradient(self, lin, y, x0, rtol, atol, max_iter, pre, poly_order=2) -> SolveResult:
+    def bi_conjugate_gradient(self, lin, y, x0, rtol, atol, max_iter, pre, poly_order=2, regulizer=0) -> SolveResult:
         """ Generalized stabilized biconjugate gradient algorithm. Signature matches to `Backend.linear_solve()`. """
         from ._linalg import bicg
-        return bicg(self, lin, y, x0, rtol, atol, max_iter, pre, poly_order)
+        return bicg(self, lin, y, x0, rtol, atol, max_iter, pre, poly_order, regulizer)
 
-    def linear(self, lin, vector):
+    def linear(self, lin, vector, regulizer):
         if callable(lin):
             return lin(vector)
         elif isinstance(lin, (tuple, list)):
@@ -1474,7 +1475,7 @@ class Backend:
         else:
             lin_shape = self.staticshape(lin)
             assert len(lin_shape) == 2, f"A must be a matrix but got shape {lin_shape}"
-            return self.mul_matrix_batched_vector(lin, vector)
+            return self.mul_matrix_batched_vector(lin, vector) + self.sum(vector) * regulizer
 
     def matrix_solve_least_squares(self, matrix: TensorType, rhs: TensorType) -> Tuple[TensorType, TensorType, TensorType, TensorType]:
         """
