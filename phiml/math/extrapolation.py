@@ -1677,13 +1677,14 @@ def map(f: Callable[[Extrapolation], Extrapolation], extrapolation):
 
 def give_leaves(extrapolation: Extrapolation):
     if isinstance(extrapolation, _MixedExtrapolation):
-        return set(sum([give_leaves(ext) for k, ext in extrapolation.ext.items()], []))
+        ret = list(sum([give_leaves(ext) for k, ext in extrapolation.ext.items()], []))
     elif isinstance(extrapolation, _NormalTangentialExtrapolation):
-        return set(give_leaves(extrapolation.normal) + give_leaves(extrapolation.tangential))
+        ret = list(give_leaves(extrapolation.normal) + give_leaves(extrapolation.tangential))
     elif isinstance(extrapolation, _ConditionalExtrapolation):
-        return set(give_leaves(extrapolation.true_ext) + give_leaves(extrapolation.false_ext))
+        ret = list(give_leaves(extrapolation.true_ext) + give_leaves(extrapolation.false_ext))
     else:
-        return [extrapolation]
+        ret = [extrapolation]
+    return list(set(ret))
 
 
 

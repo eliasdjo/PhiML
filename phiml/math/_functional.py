@@ -200,10 +200,7 @@ class JitFunction:
                 self.recorded_mappings.clear()
             self.traces[key] = self._jit_compile(key)
             if len(self.traces) >= 10:
-                warnings.warn(f"""Φ-ML-lin: The jit-compiled function '{f_name(self.f)}' was traced {len(self.traces)} times.
-Performing many traces may be slow and cause memory leaks.
-Re-tracing occurs when the number or types of arguments vary, tensor shapes vary between calls or different auxiliary arguments are given (compared by reference).
-Set forget_traces=True to avoid memory leaks when many traces are required.""", RuntimeWarning)
+                warnings.warn(f"", RuntimeWarning)
         native_result = self.traces[key](*natives)
         output_key = match_output_signature(key, self.recorded_mappings, self)
         output_tensors = assemble_tensors(native_result, output_key.specs)
@@ -318,11 +315,7 @@ class LinearFunction(Generic[X, Y], Callable[[X], Y]):
             if not key.tracing:
                 self.matrices_and_biases[key] = matrix, bias, raw_out
                 if len(self.matrices_and_biases) >= 4:
-                    warnings.warn(f"""Φ-ML-lin: The compiled linear function '{f_name(self.f)}' was traced  times.
-Performing many traces may be slow and cause memory leaks.
-Tensors in auxiliary arguments (all except the first parameter unless specified otherwise) are compared by reference, not by tensor values.
-Auxiliary arguments: {key.auxiliary_kwargs}
-Multiple linear traces can be avoided by jit-compiling the code that calls the linear function or setting forget_traces=True.""", RuntimeWarning, stacklevel=3)
+                    warnings.warn(f"", RuntimeWarning, stacklevel=3)
             return matrix, bias, raw_out
 
     def __call__(self, *args: X, **kwargs) -> Y:
