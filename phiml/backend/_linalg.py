@@ -138,7 +138,8 @@ def bicg(b: Backend, lin, y, x0, rtol, atol, max_iter, pre: Optional[Preconditio
     y = b.to_float(y)
     x = b.copy(b.to_float(x0), only_mutable=True)
     batch_size = b.staticshape(y)[0]
-    r0_tild = residual = y - b.linear(lin, x, regulizer)
+    with spatial_derivative_evaluation(1):
+        r0_tild = residual = y - b.linear(lin, x, regulizer)
     iterations = b.zeros([batch_size], DType(int, 32))
     function_evaluations = b.ones([batch_size], DType(int, 32))
     residual_squared = b.sum(residual ** 2, -1, keepdims=True)
@@ -172,13 +173,15 @@ def bicg(b: Backend, lin, y, x0, rtol, atol, max_iter, pre: Optional[Preconditio
                 u_hat[i] = beta * u_hat[i]
                 u_hat[i] = r0_hat[i] - u_hat[i]
             put = pre.apply(u_hat[j])
-            u_hat[j + 1] = b.linear(lin, put, regulizer); function_evaluations += continue_1
+            with spatial_derivative_evaluation(1):
+                u_hat[j + 1] = b.linear(lin, put, regulizer); function_evaluations += continue_1
             gamma_coeff = b.sum(u_hat[j + 1] * r0_tild, axis=-1, keepdims=True)
             alpha = rho_0 / gamma_coeff  # ToDo produces NaN if pre is perfect
             for i in range(0, j + 1):
                 r0_hat[i] = r0_hat[i] - alpha * u_hat[i + 1]
             prt = pre.apply(r0_hat[j])
-            r0_hat[j + 1] = b.linear(lin, prt, regulizer); function_evaluations += continue_1
+            with spatial_derivative_evaluation(1):
+                r0_hat[j + 1] = b.linear(lin, prt, regulizer); function_evaluations += continue_1
             x = x + alpha * u_hat[0]
         for j in range(1, poly_order + 1):
             for i in range(1, j):

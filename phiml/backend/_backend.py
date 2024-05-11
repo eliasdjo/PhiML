@@ -1466,12 +1466,12 @@ class Backend:
 
     def linear(self, lin, vector, regulizer):
         if callable(lin):
-            return lin(vector)
+            return lin(vector) + self.sum(vector) * regulizer
         elif isinstance(lin, (tuple, list)):
             for lin_i in lin:
                 lin_shape = self.staticshape(lin_i)
                 assert len(lin_shape) == 2
-            return self.stack([self.mul_matrix_batched_vector(m, v) for m, v in zip(lin, self.unstack(vector))])
+            return self.stack([self.mul_matrix_batched_vector(m, v) for m, v in zip(lin, self.unstack(vector))]) + self.sum(vector) * regulizer
         else:
             lin_shape = self.staticshape(lin)
             assert len(lin_shape) == 2, f"A must be a matrix but got shape {lin_shape}"
