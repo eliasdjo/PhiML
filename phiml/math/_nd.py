@@ -853,9 +853,9 @@ def laplace(x: Tensor,
     result = (left + right - 2 * center) / (dx ** 2)
     if weights is not None:
         dim_names = x.shape.only(dims).names
-        assert channel(weights).rank == 1 and channel(weights).item_names is not None, f"weights must have one channel dimension listing the laplace dims but got {shape(weights)}"
-        assert set(channel(weights).item_names[0]) >= set(dim_names), f"the channel dim of weights must contain all laplace dims {dim_names} but only has {channel(weights).item_names}"
-        result *= rename_dims(weights, channel, batch('_laplace'))
+        if channel(weights):
+            assert set(channel(weights).item_names[0]) >= set(dim_names), f"the channel dim of weights must contain all laplace dims {dim_names} but only has {channel(weights).item_names}"
+            result *= rename_dims(weights, channel, batch('_laplace'))
     result = math.sum_(result, '_laplace')
     return result
 
