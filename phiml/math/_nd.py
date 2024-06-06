@@ -855,7 +855,8 @@ def laplace(x: Tensor,
         dim_names = x.shape.only(dims).names
         if channel(weights):
             assert set(channel(weights).item_names[0]) >= set(dim_names), f"the channel dim of weights must contain all laplace dims {dim_names} but only has {channel(weights).item_names}"
-            result *= rename_dims(weights, channel, batch('_laplace'))
+            weights = rename_dims(weights, channel, batch('_laplace'))
+        result *= weights
     result = math.sum_(result, '_laplace')
     return result
 
