@@ -1737,6 +1737,7 @@ def map(f: Callable[[Extrapolation], Extrapolation], extrapolation):
     else:
         return f(extrapolation)
 
+
 def give_leaves(extrapolation: Extrapolation):
     if isinstance(extrapolation, _MixedExtrapolation):
         ret = list(sum([give_leaves(ext) for k, ext in extrapolation.ext.items()], []))
@@ -1747,8 +1748,6 @@ def give_leaves(extrapolation: Extrapolation):
     else:
         ret = [extrapolation]
     return list(set(ret))
-
-
 
 
 def remove_constant_offset(extrapolation):
