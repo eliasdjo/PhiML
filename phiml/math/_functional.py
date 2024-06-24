@@ -7,7 +7,6 @@ from numbers import Number
 from typing import Tuple, Callable, Dict, Generic, List, TypeVar, Any, Set, Union, Optional, Sequence
 
 import numpy as np
-import torch
 
 from . import _ops as math, all_available, stop_gradient
 from ._magic_ops import stack, slice_, value_attributes, find_differences
@@ -144,7 +143,7 @@ def key_from_args(args: tuple,
         _, aux_tensors = disassemble_tree(attached_aux_kwargs, cache=cache, attr_type=variable_attributes)
         aux_natives, aux_shapes, aux_specs = disassemble_tensors(aux_tensors, expand=False)
         from torch import Tensor
-        grad_aux_indices = [i for i, n in enumerate(aux_natives) if isinstance(n, torch.Tensor) and n.requires_grad]
+        grad_aux_indices = [i for i, n in enumerate(aux_natives) if isinstance(n, Tensor) and n.requires_grad]
         natives += tuple(aux_natives[i] for i in grad_aux_indices)
         traced_aux = {'indices': grad_aux_indices, 'shapes': aux_shapes, 'specs': aux_specs}
     else:
