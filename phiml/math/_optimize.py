@@ -707,7 +707,7 @@ def _linear_solve_forward(y: Tensor,
         random_y_std = backend.mean(abs(random_y), axis=1)
         avg_entries_per_row = pattern_dims_out.volume  # or use only non-zero values? ~ 2 * pattern_dims_out.rank
         approx_matrix_vals = backend.sqrt(random_y_std * 9 / avg_entries_per_row)
-        matrix_offset = reshaped_tensor(approx_matrix_vals, [batch_dims])
+        matrix_offset = reshaped_tensor(approx_matrix_vals*0.001, [batch_dims])
         matrix_offset = math.reshaped_native(math.where(solve.rank_deficiency > 0, matrix_offset, 0), [batch_dims])
     method = solve.method
     if not callable(native_lin_op) and is_sparse(native_lin_op) and y.default_backend.name == 'torch' and preconditioner and not all_available(y):
